@@ -1,8 +1,9 @@
-# ChatGPT Web Demo
+# Next Supabase Starter
 
-A minimal ChatGPT web demo based on Next.js and Vercel AI SDK
+A minimal Next.js + Supabase starter
 
 - [Next.js](https://nextjs.org/)
+- [Supabase](https://supabase.com/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [daisyUI](https://daisyui.com/)
 - [OpenAI Node API Library](https://www.npmjs.com/package/openai)
@@ -10,7 +11,24 @@ A minimal ChatGPT web demo based on Next.js and Vercel AI SDK
 
 ## Setup
 
-Create `.env` file in project root and set `OPENAI_API_KEY` from [OpenAI developer console](https://platform.openai.com/account/api-keys) like this:
+To setup environment variables, create `.env` file in project root first. Read [Next.js guide](https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables)
+
+### Supabase
+
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` by following [Supabase instructions](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs) likes this:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=<YOUR URL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<YOUR KEY>
+```
+
+#### Local development
+
+Follow the [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started) instructions to start local Supabase server. Configuration for local server is stored at `/supabase/config.toml` file.
+
+### OpenAI
+
+Set `OPENAI_API_KEY` from [OpenAI developer console](https://platform.openai.com/account/api-keys) like this:
 
 ```
 OPENAI_API_KEY=<YOUR KEY HERE>
@@ -20,20 +38,20 @@ OPENAI_API_KEY=<YOUR KEY HERE>
 
 I personally recommend using [Bun](https://bun.sh/) as the bundler/package manager. To install Bun, run the following bash script:
 
-```
-$ curl -fsSL https://bun.sh/install | bash
+```bash
+curl -fsSL https://bun.sh/install | bash
 ```
 
 Once Bun is successfully installed, you can use it just like any other package manager (e.g. npm or yarn):
 
-```
-$ bun install
+```bash
+bun install
 ```
 
 ## Run
 
-```
-$ bun dev
+```bash
+bun dev
 ```
 
 ## License
