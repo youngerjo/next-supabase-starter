@@ -73,7 +73,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <div className="sticky top-0 p-2 bg-base-200 z-20">
                       <MenuButton />
                     </div>
-                    <div className="flex flex-col pt-2 overflow-auto">
+                    <div className="flex flex-col p-2 overflow-auto">
                       <NewButton />
                       <History />
                     </div>
