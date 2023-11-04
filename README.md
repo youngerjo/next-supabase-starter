@@ -1,9 +1,10 @@
 # Next Supabase Starter
 
-A minimal Next.js + Supabase starter
+A ChatGPT integrated Next.js + Supabase starter
 
 - [Next.js](https://nextjs.org/)
 - [Supabase](https://supabase.com/)
+- [Tanstack Query](https://tanstack.com/query)
 - [TailwindCSS](https://tailwindcss.com/)
 - [daisyUI](https://daisyui.com/)
 - [OpenAI Node API Library](https://www.npmjs.com/package/openai)

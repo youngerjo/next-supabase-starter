@@ -1,33 +1,61 @@
 "use client"
 
 import { FormEvent, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { useChat } from "ai/react"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+
+const supabase = createClientComponentClient({
+  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_KEY,
+})
 
 export default function Page() {
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
+
+  const queryClient = useQueryClient()
+  const { data } = useQuery({
+    queryKey: ["history", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("chat_completions")
+        .select("*")
+        .eq("id", id)
+        .single()
+      return data
+    },
+    enabled: !!id,
+  })
+
+  const chat = useChat({ api: "/chat/api", body: { id } })
+
+  useEffect(() => {
+    if (data) {
+      chat.setMessages(data.messages)
+    } else {
+      chat.setMessages([])
+    }
+  }, [data])
+
   const textField = useRef<HTMLInputElement>(null)
   const messageEnd = useRef<HTMLLIElement>(null)
-  const [inputText, setInputText] = useState("")
-  const [loading, setLoading] = useState(false)
 
-  const chat = useChat({
-    api: `/api/chat`,
-    body: {
-      model: "gpt-3.5-turbo",
-    },
-  })
+  const [inputText, setInputText] = useState("")
 
   const sendMessage = async (e: FormEvent) => {
     e.preventDefault()
-
-    setLoading(true)
 
     await chat.append({
       role: "user",
       content: inputText,
     })
 
+    queryClient.invalidateQueries({
+      queryKey: ["history"],
+    })
     setInputText("")
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -35,16 +63,16 @@ export default function Page() {
       messageEnd.current.scrollIntoView()
     }
 
-    if (!loading) {
+    if (!chat.isLoading) {
       if (textField.current) {
         textField.current.focus()
       }
     }
-  }, [loading])
+  }, [chat.isLoading])
 
   return (
-    <div className="container mx-auto h-screen flex flex-col justify-between items-stretch px-4">
-      <ul className="overflow-auto py-4">
+    <div className="h-full flex flex-col justify-between items-stretch">
+      <ul className="overflow-auto p-4">
         {chat.messages
           .filter((message) => message.role != "system")
           .map((message, index) => (
@@ -55,7 +83,7 @@ export default function Page() {
               }`}
             >
               {message.role == "assistant" && (
-                <div className="chat-header">ChatGPT</div>
+                <div className="chat-header">AI</div>
               )}
               <div
                 className={`chat-bubble ${
@@ -70,33 +98,33 @@ export default function Page() {
           ))}
         <li ref={messageEnd} />
       </ul>
-      <form onSubmit={sendMessage}>
-        <div className="flex flex-row justify-between gap-2 my-4">
-          <input
-            ref={textField}
-            type="text"
-            className={`input input-bordered w-full ${
-              loading ? "input-disabled" : ""
-            }`}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            disabled={loading}
-          ></input>
-          <button
-            type="submit"
-            className="btn btn-primary w-32"
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="flex flex-row items-center gap-2">
-                <span className="loading loading-spinner" />
-                <span>Waiting</span>
-              </div>
-            ) : (
-              <span>Send</span>
-            )}
-          </button>
-        </div>
+      <form
+        onSubmit={sendMessage}
+        className="flex flex-row justify-between items-center gap-2 px-4 py-2"
+      >
+        <input
+          ref={textField}
+          className={`flex-1 input input-bordered ${
+            chat.isLoading ? "input-disabled" : ""
+          }`}
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          disabled={chat.isLoading}
+        />
+        <button
+          type="submit"
+          className="btn btn-primary w-32"
+          disabled={chat.isLoading}
+        >
+          {chat.isLoading ? (
+            <div className="flex flex-row items-center gap-2">
+              <span className="loading loading-spinner" />
+              <span>Waiting</span>
+            </div>
+          ) : (
+            <span>Send</span>
+          )}
+        </button>
       </form>
     </div>
   )

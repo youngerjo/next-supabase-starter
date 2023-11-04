@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
+  "author": {
+    "name": "Younger Jo",
+    "email": "youngerjo@gmail.com"
+  },
   "scripts": {
     "dev": "next dev",
     "start": "next start",
@@ -11,6 +15,7 @@
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.8.5",
     "@supabase/supabase-js": "^2.38.4",
+    "@tanstack/react-query": "^5.4.3",
     "ai": "^2.2.20",
     "daisyui": "^3.9.4",
     "next": "^14.0.1",
