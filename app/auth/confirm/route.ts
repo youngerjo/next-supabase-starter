@@ -1,18 +1,19 @@
 // Implementation from the official docs:
-// https://supabase.com/docs/guides/auth/server-side/oauth-with-pkce-flow-for-ssr
+// https://supabase.com/docs/guides/auth/server-side/email-based-auth-with-pkce-flow-for-ssr
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr"
+import { type EmailOtpType } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const code = searchParams.get("code")
+  const token_hash = searchParams.get("token_hash")
+  const type = searchParams.get("type") as EmailOtpType | null
   const next = searchParams.get("next") ?? "/"
 
-  if (code) {
+  if (token_hash && type) {
     const cookieStore = cookies()
-
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -31,12 +32,15 @@ export async function GET(request: Request) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.verifyOtp({
+      type,
+      token_hash,
+    })
     if (!error) {
       return NextResponse.redirect(next)
     }
   }
 
-  // return the user to an error page with instructions
+  // return the user to an error page with some instructions
   return NextResponse.redirect("/auth/auth-code-error")
 }
