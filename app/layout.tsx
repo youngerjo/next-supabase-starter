@@ -1,4 +1,6 @@
 import { ReactNode } from "react"
+import QueryClientProvider from "@/components/QueryClientProvider"
+import SupabaseProvider from "@/components/SupabaseProvider"
 import "./global.css"
 
 export default function Layout(props: { children: ReactNode }) {
@@ -6,7 +8,11 @@ export default function Layout(props: { children: ReactNode }) {
 
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <QueryClientProvider>
+          <SupabaseProvider>{children}</SupabaseProvider>
+        </QueryClientProvider>
+      </body>
     </html>
   )
 }

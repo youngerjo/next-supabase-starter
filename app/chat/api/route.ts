@@ -46,7 +46,9 @@ export async function POST(req: NextRequest) {
 
   const stream = OpenAIStream(response, {
     onCompletion: async (completion) => {
-      await supabase.from("chat_completions").upsert({
+      const queryBuilder = supabase.from("chat_completions")
+
+      let data = {
         ...params,
         messages: [
           ...messages,
@@ -56,8 +58,13 @@ export async function POST(req: NextRequest) {
           },
         ],
         user_id,
-        id,
-      })
+      }
+
+      if (id) {
+        await queryBuilder.upsert({ ...data, id })
+      } else {
+        await queryBuilder.insert({ ...data })
+      }
     },
   })
 

@@ -1,13 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useQuery } from "@tanstack/react-query"
-
-const supabase = createClientComponentClient({
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_KEY,
-})
+import { useSupabase } from "@/components/SupabaseProvider"
 
 function HistoryItem(props: { item: any }) {
   const { item } = props
@@ -41,6 +36,8 @@ function HistoryItem(props: { item: any }) {
 }
 
 export default function History() {
+  const supabase = useSupabase()
+
   const { data: history, isLoading } = useQuery({
     queryKey: ["history"],
     queryFn: async () => {

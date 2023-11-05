@@ -1,21 +1,19 @@
 "use client"
 
 import { FormEvent, useEffect, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useChat } from "ai/react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-
-const supabase = createClientComponentClient({
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_KEY,
-})
+import { useSupabase } from "@/components/SupabaseProvider"
 
 export default function Page() {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
 
+  const router = useRouter()
   const queryClient = useQueryClient()
+  const supabase = useSupabase()
+
   const { data } = useQuery({
     queryKey: ["history", id],
     queryFn: async () => {
@@ -52,10 +50,22 @@ export default function Page() {
       content: inputText,
     })
 
+    setInputText("")
+
     queryClient.invalidateQueries({
       queryKey: ["history"],
     })
-    setInputText("")
+
+    if (!id) {
+      const { data } = await supabase
+        .from("chat_completions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+
+      await router.replace(`/chat?id=${data.id}`)
+    }
   }
 
   useEffect(() => {
@@ -71,8 +81,8 @@ export default function Page() {
   }, [chat.isLoading])
 
   return (
-    <div className="h-full flex flex-col justify-between items-stretch">
-      <ul className="overflow-auto p-4">
+    <div className="flex flex-col justify-between items-stretch">
+      <ul className="p-4 mb-16">
         {chat.messages
           .filter((message) => message.role != "system")
           .map((message, index) => (
@@ -88,8 +98,8 @@ export default function Page() {
               <div
                 className={`chat-bubble ${
                   message.role == "user"
-                    ? "chat-bubble-primary"
-                    : "chat-bubble-secondary"
+                    ? "chat-bubble-accent"
+                    : "chat-bubble-info"
                 }`}
               >
                 {message.content}
@@ -100,31 +110,33 @@ export default function Page() {
       </ul>
       <form
         onSubmit={sendMessage}
-        className="flex flex-row justify-between items-center gap-2 px-4 py-2"
+        className="absolute w-full bottom-0 bg-base-100 shadow px-4 py-2"
       >
-        <input
-          ref={textField}
-          className={`flex-1 input input-bordered ${
-            chat.isLoading ? "input-disabled" : ""
-          }`}
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          disabled={chat.isLoading}
-        />
-        <button
-          type="submit"
-          className="btn btn-primary w-32"
-          disabled={chat.isLoading}
-        >
-          {chat.isLoading ? (
-            <div className="flex flex-row items-center gap-2">
-              <span className="loading loading-spinner" />
-              <span>Waiting</span>
-            </div>
-          ) : (
-            <span>Send</span>
-          )}
-        </button>
+        <div className="flex flex-row justify-between items-center gap-2">
+          <input
+            ref={textField}
+            className={`flex-1 input input-bordered ${
+              chat.isLoading ? "input-disabled" : ""
+            }`}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            disabled={chat.isLoading}
+          />
+          <button
+            type="submit"
+            className="btn btn-neutral w-24"
+            disabled={chat.isLoading}
+          >
+            {chat.isLoading ? (
+              <div className="flex flex-row items-center gap-2">
+                <span className="loading loading-spinner" />
+                <span>Waiting</span>
+              </div>
+            ) : (
+              <span>Send</span>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   )
