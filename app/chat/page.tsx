@@ -130,7 +130,6 @@ export default function Page() {
             {chat.isLoading ? (
               <div className="flex flex-row items-center gap-2">
                 <span className="loading loading-spinner" />
-                <span>Waiting</span>
               </div>
             ) : (
               <span>Send</span>
