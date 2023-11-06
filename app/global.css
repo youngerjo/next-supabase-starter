@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#auth-sign-in {
+  @apply flex flex-col items-center;
+}

@@ -2,13 +2,16 @@
 
 import { useRouter } from "next/navigation"
 import { useSupabase } from "@/components/SupabaseProvider"
+import { useEffect } from "react"
 
-export default async function Page() {
+export default function Page() {
   const supabase = useSupabase()
   const router = useRouter()
 
-  await supabase.auth.signOut()
-  await router.replace("/")
+  useEffect(() => {
+    supabase.auth.signOut()
+    router.replace("/")
+  }, [])
 
   return null
 }

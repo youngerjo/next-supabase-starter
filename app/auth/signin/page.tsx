@@ -2,17 +2,17 @@
 
 import { useSupabase } from "@/components/SupabaseProvider"
 import { Auth } from "@supabase/auth-ui-react"
+import { useEffect } from "react"
 
 export default function Page() {
   const supabase = useSupabase()
 
   return (
     <div className="h-full container mx-auto flex flex-col items-center justify-center p-2">
-      <div className="min-w-96 px-6 pt-6 pb-10 bg-base-100 rounded-xl shadow-xl">
+      <div className="min-w-96 p-6 bg-base-100 rounded-xl shadow-xl">
         <Auth
           supabaseClient={supabase}
-          redirectTo="/"
-          providers={["apple", "discord", "google", "slack"]}
+          providers={["apple", "google"]}
           socialLayout="vertical"
           appearance={{
             extend: false,
@@ -24,8 +24,7 @@ export default function Page() {
               input: "input w-full bg-base-200 mb-2",
               anchor:
                 "flex flex-col text-center text-sm mt-2 text-base-content/[.75]",
-              message:
-                "absolute left-0 right-0 text-sm text-center text-error pt-2",
+              message: "text-sm text-center text-error pt-2",
               loader: "loading loading-spinner",
             },
           }}
